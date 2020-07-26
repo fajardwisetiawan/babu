@@ -1,0 +1,23 @@
+{
+    "status": "success",
+    "code": 200,
+    "message": "The request was successful",
+    "data": [
+        {
+            "name": "Abu Dhabi",
+            "id": 4139,
+            "parent": 5153,
+            "type": "city",
+            "imageURL": ""
+
+        },
+        {
+            "name": "Croatia",
+            "id": 5037,
+            "parent": 6886,
+            "type": "country",
+            "imageURL": ""
+
+        }
+     ]
+}

@@ -1,0 +1,20 @@
+{
+    "name" : "State List",
+    "states" : [
+     "Johor",
+      "Kedah",
+      "Kelantan",
+      "Kuala Lumpur",
+      "Melaka",
+      "Negeri Sembilan",
+      "Pulau Pinang",
+      "Perak",
+      "Perlis",
+      "Pahang",
+      "Terengganu",
+      "Sabah",
+      "Sarawak",
+      "Selangor",
+      "Wilayah Persekutuan"
+    ]
+  }
