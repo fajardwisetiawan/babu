@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
@@ -10,7 +11,7 @@ class TrenPage extends StatefulWidget {
 }
 
 class _TrenPageState extends State<TrenPage> {
-  String nextPage = "http://103.112.162.79:3000/app/kategori/"+"TREN";
+  String nextPage = "http://192.168.0.144:3000/app/kategori/" + "TREN";
 
   ScrollController _scrollController = new ScrollController();
 
@@ -30,7 +31,7 @@ class _TrenPageState extends State<TrenPage> {
       // print(response.data['nextPage']);
       var page = response.data['nextPage'];
       // ignore: unnecessary_brace_in_string_interps
-      nextPage = "http://103.112.162.79:3000/app/kategori/TREN/?page=${page}";
+      nextPage = "http://192.168.0.144:3000/app/kategori/TREN/?page=${page}";
       for (int i = 0; i < response.data['data'].length; i++) {
         tempList.add(response.data['data'][i]);
       }
@@ -86,14 +87,39 @@ class _TrenPageState extends State<TrenPage> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: GestureDetector(
-              onTap: () => Navigator.of(context).push(
-                new MaterialPageRoute(
-                  builder: (BuildContext context) => new DetailBeritaPage(
-                    list: list,
-                    index: index,
-                  ),
-                ),
-              ),
+              // onTap: () => Navigator.of(context).push(
+              //   new MaterialPageRoute(
+              //     builder: (BuildContext context) => new DetailBeritaPage(
+              //       list: list,
+              //       index: index,
+              //     ),
+              //   ),
+              // ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                        transitionDuration: Duration(seconds: 2),
+                        transitionsBuilder: (BuildContext context,
+                            Animation<double> animation,
+                            Animation<double> secAnimation,
+                            Widget child) {
+                          animation = CurvedAnimation(
+                              parent: animation, curve: Curves.elasticInOut);
+                          return ScaleTransition(
+                              alignment: Alignment.center,
+                              scale: animation,
+                              child: child);
+                        },
+                        pageBuilder: (BuildContext context,
+                            Animation<double> animation,
+                            Animation<double> setAnimation) {
+                          return DetailBeritaPage(
+                            list: list,
+                            index: index,
+                          );
+                        }));
+              },
               child: Container(
                 color: Colors.transparent,
                 height: 145.0,
@@ -131,20 +157,16 @@ class _TrenPageState extends State<TrenPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Wrap(
-                                  children: <Widget>[
-                                    Text(
-                                      list[index]['judul'],
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: 'OpenSans',
-                                        fontSize: 18.0,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                AutoSizeText(
+                                  list[index]['judul'],
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'OpenSans',
+                                    fontSize: 18.0,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 SizedBox(
                                   height: 2.0,
@@ -156,7 +178,7 @@ class _TrenPageState extends State<TrenPage> {
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(4.0),
-                                    child: Text(
+                                    child: AutoSizeText(
                                       list[index]['chanel'],
                                       style: TextStyle(
                                           fontFamily: 'OpenSans',
@@ -170,7 +192,7 @@ class _TrenPageState extends State<TrenPage> {
                             SizedBox(
                               height: 2.0,
                             ),
-                            Text(
+                            AutoSizeText(
                               list[index]['readmore'],
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,

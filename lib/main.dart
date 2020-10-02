@@ -10,7 +10,8 @@ import 'package:babu_apk/cs.dart';
 // import 'package:babu_apk/search/autosearch.dart';
 // import 'package:babu_apk/search/mainSearch.dart';
 // import 'package:babu_apk/f.dart';
-// import 'package:babu_apk/dd.dart';
+import 'package:babu_apk/aa.dart';
+import 'package:babu_apk/dd.dart';
 
 void main() => runApp(MyApp());
 
@@ -31,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
         title: 'BABU',
         debugShowCheckedModeBanner: false,
-        home: Cs(),
+        home: SplashScreenPage(),
         routes: <String, WidgetBuilder>{
           '/spalshScreenPage': (BuildContext context) => new SplashScreenPage(),
           '/viewPage': (BuildContext context) => new ViewPage(),

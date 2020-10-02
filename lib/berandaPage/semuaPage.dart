@@ -1,12 +1,17 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:babu_apk/page/detailBeritaPage.dart';
 import 'package:babu_apk/page/listSumberPage.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:rupiah/rupiah.dart';
 
 class SemuaPage extends StatefulWidget {
   @override
@@ -16,11 +21,11 @@ class SemuaPage extends StatefulWidget {
 class _SemuaPageState extends State<SemuaPage> {
   Future<List<Map<String, dynamic>>> getDataHorisontal() async {
     final response =
-        await http.get("http://103.112.162.79:3000/countperchanel");
+        await http.get("http://192.168.0.144:3000/countperchanel");
     return List<Map<String, dynamic>>.from(json.decode(response.body)['data']);
   }
 
-  String nextPage = "http://103.112.162.79:3000/";
+  String nextPage = "http://192.168.0.144:3000/";
 
   ScrollController _scrollController = new ScrollController();
 
@@ -40,7 +45,7 @@ class _SemuaPageState extends State<SemuaPage> {
       // print(response.data['nextPage']);
       var page = response.data['nextPage'];
       // ignore: unnecessary_brace_in_string_interps
-      nextPage = "http://103.112.162.79:3000/?page=${page}";
+      nextPage = "http://192.168.0.144:3000/?page=${page}";
       for (int i = 0; i < response.data['data'].length; i++) {
         tempList.add(response.data['data'][i]);
       }
@@ -108,14 +113,39 @@ class _SemuaPageState extends State<SemuaPage> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: GestureDetector(
-              onTap: () => Navigator.of(context).push(
-                new MaterialPageRoute(
-                  builder: (BuildContext context) => new DetailBeritaPage(
-                    list: list,
-                    index: index,
-                  ),
-                ),
-              ),
+              // onTap: () => Navigator.of(context).push(
+              //   new MaterialPageRoute(
+              // builder: (BuildContext context) => new DetailBeritaPage(
+              //   list: list,
+              //   index: index,
+              // ),
+              //   ),
+              // ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                        transitionDuration: Duration(seconds: 2),
+                        transitionsBuilder: (BuildContext context,
+                            Animation<double> animation,
+                            Animation<double> secAnimation,
+                            Widget child) {
+                          animation = CurvedAnimation(
+                              parent: animation, curve: Curves.elasticInOut);
+                          return ScaleTransition(
+                              alignment: Alignment.center,
+                              scale: animation,
+                              child: child);
+                        },
+                        pageBuilder: (BuildContext context,
+                            Animation<double> animation,
+                            Animation<double> setAnimation) {
+                          return DetailBeritaPage(
+                            list: list,
+                            index: index,
+                          );
+                        }));
+              },
               child: Container(
                 color: Colors.transparent,
                 height: 145.0,
@@ -153,24 +183,39 @@ class _SemuaPageState extends State<SemuaPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Wrap(
-                                  children: <Widget>[
-                                    Text(
-                                      list[index]['judul'],
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: 'OpenSans',
-                                        fontSize: 18.0,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                AutoSizeText(
+                                  list[index]['judul'],
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'OpenSans',
+                                    fontSize: 18.0,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 SizedBox(
                                   height: 2.0,
                                 ),
+                                // list[index]['kategori'] == ""
+                                //     ? null
+                                //     : Container(
+                                //         decoration: BoxDecoration(
+                                //           color: Colors.blue,
+                                //           borderRadius:
+                                //               BorderRadius.circular(15.0),
+                                //         ),
+                                //         child: Padding(
+                                //           padding: const EdgeInsets.all(4.0),
+                                //           child: AutoSizeText(
+                                //             list[index]['kategori'],
+                                //             style: TextStyle(
+                                //                 fontFamily: 'OpenSans',
+                                //                 fontSize: 13.0,
+                                //                 color: Colors.white),
+                                //           ),
+                                //         ),
+                                //       ),
                                 Container(
                                   decoration: BoxDecoration(
                                     color: Colors.blue,
@@ -178,7 +223,7 @@ class _SemuaPageState extends State<SemuaPage> {
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(4.0),
-                                    child: Text(
+                                    child: AutoSizeText(
                                       list[index]['kategori'],
                                       style: TextStyle(
                                           fontFamily: 'OpenSans',
@@ -190,19 +235,19 @@ class _SemuaPageState extends State<SemuaPage> {
                                 SizedBox(
                                   height: 2.0,
                                 ),
-                                Text(
+                                AutoSizeText(
                                   list[index]['chanel'],
                                   style: TextStyle(
                                       fontFamily: 'OpenSans',
                                       fontSize: 13.0,
-                                      color: Colors.redAccent),
+                                      color: Colors.red[600]),
                                 ),
                               ],
                             ),
                             SizedBox(
                               height: 2.0,
                             ),
-                            Text(
+                            AutoSizeText(
                               list[index]['readmore'],
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
@@ -210,6 +255,7 @@ class _SemuaPageState extends State<SemuaPage> {
                                   fontFamily: 'OpenSans',
                                   fontSize: 13.0,
                                   color: Colors.grey),
+                              textAlign: TextAlign.justify,
                             ),
                           ],
                         ),
@@ -351,7 +397,9 @@ class ItemHorizontal extends StatelessWidget {
                                     color: Colors.white),
                               ),
                               Text(
-                                "${listhorizontal[i]['count']}",
+                                // NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0).format("${listhorizontal[i]['count']}"),
+                                rupiah("${listhorizontal[i]['count']}")
+                                    .replaceAll('Rp', ''),
                                 style: TextStyle(
                                     fontFamily: 'OpenSans',
                                     fontSize: 15.0,

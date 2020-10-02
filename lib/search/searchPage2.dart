@@ -31,7 +31,7 @@
 //   void getUsers() async {
 //     try {
 //       final response =
-//           await http.get("http://103.112.162.79:3000/search");
+//           await http.get("http://192.168.0.144:3000/search");
 //       if (response.statusCode == 200) {
 //         beritas = loadUsers(response.body);
 //         print('Beritas: ${beritas.length}');

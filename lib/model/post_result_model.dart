@@ -117,7 +117,7 @@ class PostResult {
   }
 
   static Future<PostResult> connectToAPI(String judul) async {
-      String apiURL = "http://103.112.162.79:3000/search";
+      String apiURL = "http://192.168.0.144:3000/search";
       var apiResult = await http.post(apiURL, body: {"judul": judul});
       var jsonObject = json.decode(apiResult.body);
       return PostResult.createPostResult(jsonObject);

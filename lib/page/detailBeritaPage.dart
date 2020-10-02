@@ -28,7 +28,7 @@ class _DetailBeritaPageState extends State<DetailBeritaPage> {
         ),
         centerTitle: true,
         title: Text(
-          "BABU",
+          "DETAIL BERITA",
           style: TextStyle(
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.bold,
@@ -114,6 +114,7 @@ class _DetailBeritaPageState extends State<DetailBeritaPage> {
                         widget.list[widget.index]['readmore'],
                         style:
                             TextStyle(fontSize: 16.0, fontFamily: 'OpenSans'),
+                            textAlign: TextAlign.justify,
                       ),
                     ],
                   ),

@@ -22,7 +22,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<List<Map<String, dynamic>>> getData() async {
     final response =
-        await http.get("http://103.112.162.79:3000/search" + nSearch);
+        await http.get("http://192.168.0.144:3000/search" + nSearch);
     return List<Map<String, dynamic>>.from(json.decode(response.body)['data']);
   }
 

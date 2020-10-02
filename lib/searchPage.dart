@@ -1,67 +1,49 @@
 import 'package:babu_apk/page/detailBeritaPage.dart';
 import 'package:flutter/material.dart';
-import './sqlite/dbmanager.dart';
 import 'package:http/http.dart' as http;
-import 'search/beritaSearch.dart';
-import 'package:babu_apk/page/listKategoriPage.dart';
+import 'dart:async';
 import 'dart:convert';
-import 'package:shimmer/shimmer.dart';
 
 class SearchPage extends StatefulWidget {
-  SearchPage() : super();
-
-  final String title = "AutoComplete Demo";
   @override
   _SearchPageState createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
-  TextEditingController controllerSearch = new TextEditingController();
+  TextEditingController contSearch = new TextEditingController();
+  var text;
+  List data;
 
-  String nSearch = "";
-
-  Future<List<Map<String, dynamic>>> getData() async {
-    final response =
-        await http.get("http://103.112.162.79:3000/search?search=Aku");
-    return List<Map<String, dynamic>>.from(json.decode(response.body)['data']);
+  @override
+  void initState() {
+    super.initState();
+    if (mounted) {
+      _getData();
+    }
   }
 
-  final DbSearchManager dbmanager = new DbSearchManager();
-
-  final _nameController = TextEditingController();
-  final _formKey = new GlobalKey<FormState>();
-  Search search;
-  List<Search> searchlist;
-  int updateIndex;
-
-  Widget row(Berita berita) {
-    return Container(
-      height: 40.0,
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Icon(
-              Icons.search,
-              size: 18.0,
-              color: Colors.black54,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(1.0),
-            child: Text(
-              berita.berita,
-              style: TextStyle(fontSize: 17.0, color: Colors.black54),
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<Null> _getData() async {
+    if (text == '' || text == null) {
+      text = 'purwokerto';
+    }
+    Map param = {'search': text};
+    var res = await http.post("http://192.168.0.144:3000/search", body: param);
+    if (this.mounted) {
+      print(res.statusCode);
+      if (res.statusCode == 200) {
+        setState(() {
+          try {
+            data = json.decode(res.body)['data'];
+          } catch (e) {
+            print("Error: $e");
+          }
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -78,13 +60,12 @@ class _SearchPageState extends State<SearchPage> {
             borderRadius: BorderRadius.circular(20.0),
           ),
           child: TextField(
-            // controller: _nameController,
-            controller: controllerSearch,
+            controller: contSearch,
             textInputAction: TextInputAction.search,
-            onSubmitted: (value) {
-              getData();
+            onChanged: (value) {
+              _getData();
               setState(() {
-                nSearch = controllerSearch.text;
+                text = contSearch.text;
               });
             },
             keyboardType: TextInputType.text,
@@ -111,260 +92,167 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            FutureBuilder<List>(
-              future: getData(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) print(snapshot.error);
-                return snapshot.hasData
-                    ? ItemList(list: snapshot.data)
-                    : Column(
-                        children: [
-                          _shimmerVertical(),
-                          _shimmerVertical(),
-                          _shimmerVertical()
-                        ],
-                      );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _shimmerVertical() {
-    return Container(
-      color: Colors.transparent,
-      height: 145.0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              flex: 3,
-              child: SizedBox(
-                height: 130.0,
-                width: 70.0,
-                child: Shimmer.fromColors(
-                    baseColor: Color(0XFFededed),
-                    highlightColor: Colors.white,
-                    child: Container(
-                      height: 130.0,
-                      width: 70.0,
-                      color: Color(0xFFededed),
-                    )),
-              ),
-            ),
-            SizedBox(
-              width: 10.0,
-            ),
-            Expanded(
-              flex: 7,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Wrap(
-                        children: <Widget>[
-                          SizedBox(
-                            width: double.infinity,
-                            height: 20.0,
-                            child: Shimmer.fromColors(
-                              baseColor: Color(0XFFededed),
-                              highlightColor: Colors.white,
-                              child: Container(
-                                height: 20.0,
-                                width: double.infinity,
-                                color: Color(0xFFededed),
+      body: ListView(
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              // Padding(
+              //   padding: const EdgeInsets.all(20.0),
+              //   child: TextFormField(
+              //     controller: contSearch,
+              //     onChanged: (value) {
+              //       setState(() {
+              //         _getData();
+              //         text = contSearch.text;
+              //       });
+              //     },
+              //     decoration: InputDecoration(labelText: 'Enter your username'),
+              //   ),
+              // ),
+              data == null
+                  ? Container(
+                      height: MediaQuery.of(context).size.height * 1.0,
+                      width: MediaQuery.of(context).size.width * 1.0,
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  // Column(
+                  //   children: <Widget>[
+                  //     Container(
+                  //       padding: const EdgeInsets.only(top: 20.0),
+                  //       child: Text('Data kosong',
+                  //           textAlign: TextAlign.center,
+                  //           style: TextStyle(
+                  //             color: Color(0xFF333333),
+                  //             fontSize: 18,
+                  //           )),
+                  //     )
+                  //   ],
+                  // ),
+                  : ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: data == null ? 0 : data.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).push(
+                                new MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        new DetailBeritaPage(
+                                          list: data,
+                                          index: index,
+                                        ))),
+                            child: Container(
+                              color: Colors.transparent,
+                              height: 145.0,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: <Widget>[
+                                    Expanded(
+                                      flex: 3,
+                                      child: Container(
+                                        height: 120.0,
+                                        width: 70.0,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                          image: DecorationImage(
+                                            // image: list[i]['img'] == ""
+                                            //     ? AssetImage("assets/images/0images.png")
+                                            //     : NetworkImage(list[i]['img']),
+                                            image: AssetImage(
+                                                "assets/images/0images.png"),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 10.0,
+                                    ),
+                                    Expanded(
+                                      flex: 7,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Wrap(
+                                                children: <Widget>[
+                                                  Text(
+                                                    data[index]['judul'],
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontFamily: 'OpenSans',
+                                                      fontSize: 18.0,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 3.0,
+                                              ),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red[600],
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15.0),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(4.0),
+                                                  child: Text(
+                                                    data[index]['chanel'],
+                                                    style: TextStyle(
+                                                        fontFamily: 'OpenSans',
+                                                        fontSize: 13.0,
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            data[index]['readmore'] == ""
+                                                ? ""
+                                                : data[index]['readmore'],
+                                            // list[i]['readmore'],
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontFamily: 'OpenSans',
+                                                fontSize: 13.0,
+                                                color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 2.0,
-                      ),
-                      SizedBox(
-                        width: 60.0,
-                        height: 25.0,
-                        child: Shimmer.fromColors(
-                          baseColor: Color(0XFFededed),
-                          highlightColor: Colors.white,
-                          child: Container(
-                            height: 25.0,
-                            width: 60.0,
-                            color: Color(0xFFededed),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 2.0,
-                      ),
-                      SizedBox(
-                        width: 60.0,
-                        height: 25.0,
-                        child: Shimmer.fromColors(
-                          baseColor: Color(0XFFededed),
-                          highlightColor: Colors.white,
-                          child: Container(
-                            height: 25.0,
-                            width: 60.0,
-                            color: Color(0xFFededed),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 2.0,
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 20.0,
-                    child: Shimmer.fromColors(
-                      baseColor: Color(0XFFededed),
-                      highlightColor: Colors.white,
-                      child: Container(
-                        height: 20.0,
-                        width: double.infinity,
-                        color: Color(0xFFededed),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ItemList extends StatelessWidget {
-  final List list;
-  ItemList({this.list});
-  @override
-  Widget build(BuildContext context) {
-    return new ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: list == null ? 0 : list.length,
-      itemBuilder: (context, i) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).push(
-              new MaterialPageRoute(
-                builder: (BuildContext context) => new DetailBeritaPage(
-                  list: list,
-                  index: i,
-                ),
-              ),
-            ),
-            child: Container(
-              color: Colors.transparent,
-              height: 145.0,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        height: 120.0,
-                        width: 70.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.0),
-                          image: DecorationImage(
-                            image: list[i]['img'] == ""
-                                ? AssetImage("assets/images/0images.png")
-                                : NetworkImage(list[i]['img']),
-                            // image: NetworkImage(list[i]['img']),
-                            fit: BoxFit.fill,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10.0,
-                    ),
-                    Expanded(
-                      flex: 7,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Wrap(
-                                children: <Widget>[
-                                  Text(
-                                    list[i]['judul'],
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontFamily: 'OpenSans',
-                                      fontSize: 18.0,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 3.0,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red[600],
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(
-                                    list[i]['chanel'],
-                                    style: TextStyle(
-                                        fontFamily: 'OpenSans',
-                                        fontSize: 13.0,
-                                        color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            list[i]['readmore'] == ""
-                                ? ""
-                                : list[i]['readmore'],
-                            // list[i]['readmore'],
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontFamily: 'OpenSans',
-                                fontSize: 13.0,
-                                color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                        );
+                      })
+            ],
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
